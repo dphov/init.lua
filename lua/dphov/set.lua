@@ -14,10 +14,12 @@ vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
+vim.opt.writebackup = false
+
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
-vim.opt.hlsearch = false
+vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 vim.opt.termguicolors = true
@@ -26,10 +28,12 @@ vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 
-vim.opt.updatetime = 50
+vim.opt.updatetime = 300
 
 vim.opt.colorcolumn = "80"
 
 vim.g.mapleader = " "
 vim.g.netrw_banner = 1
 vim.g.netrw_winsize = 30
+
+vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }

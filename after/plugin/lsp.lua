@@ -1,81 +1,160 @@
-local lsp = require('lsp-zero')
-
-lsp.preset("recommended")
-
-lsp.ensure_installed({
-	'tsserver',
-	'rust_analyzer',
-	'svelte',
-})
-
--- Fix Undefined global 'vim'
-lsp.configure('lua-language-server',{
-    settings = {
-        Lua = {
-            runtime = {
-                -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-                version = 'LuaJIT',
-            },
-            diagnostics = {
-                -- Get the language server to recognize the `vim` global
-                globals = {'vim'},
-            },
-            workspace = {
-                -- Make the server aware of Neovim runtime files
-                library = vim.api.nvim_get_runtime_file("", true),
-            },
-            -- Do not send telemetry data containing a randomized but unique identifier
-            telemetry = {
-                enable = false,
-            },
-        }
-    }
-})
-
-local cmp = require('cmp')
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = lsp.defaults.cmp_mappings({
-	['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-	['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-	['<C-y>'] = cmp.mapping.confirm( { select = true }),
-	['<C-Space>'] = cmp.mapping.complete(),
-})
-
-cmp_mappings['<Tab>'] = nil
-cmp_mappings['<S-Tab>'] = nil
-
-lsp.setup_nvim_cmp({
-    mapping = cmp_mappings
-})
-
-lsp.set_preferences({
-    suggest_lsp_servers = false,
-	sign_icons = {
-        error = 'E',
-        warn = 'W',
-        hint = 'H',
-        info = 'I'
-    }
-})
-
-
-lsp.on_attach(function(client,bufnr)
-	local opts = { buffer = bufnr, remap = false }
-
-	vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-	vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-	vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-	vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-	vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-	vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)	
-	vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-	vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-	vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-	vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-end)
-
-lsp.setup()
-
-vim.diagnostic.config({
-    virtual_text = true
-})
+-- local lsp_zero = require("lsp-zero")
+--
+-- require("mason").setup({})
+-- require("mason-lspconfig").setup({
+--     ensure_installed = { "tailwindcss", "cssls", "tsserver", "rust_analyzer", "svelte", "html" },
+--     handlers = {
+--         lsp_zero.default_setup,
+--         lua_ls = function()
+--             local lua_opts = lsp_zero.nvim_lua_ls()
+--             require("lspconfig").lua_ls.setup(lua_opts)
+--         end,
+--     },
+-- })
+--
+-- require("neodev").setup({
+--     library = { plugins = { "neotest" }, types = true },
+-- })
+-- local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+-- local cmp = require("cmp")
+-- local cmp_format = require("lsp-zero").cmp_format()
+-- local cmp_select = { behavior = cmp.SelectBehavior.Select }
+--
+-- cmp.event:on(
+--     'confirm_done',
+--     cmp_autopairs.on_confirm_done()
+-- )
+--
+-- cmp.setup({
+--     -- formatting = {
+--     --     fields = { 'menu', 'abbr', 'kind' }
+--     -- },
+--     formatting = cmp_format,
+--     sources = {
+--         { name = "nvim_lsp",               keyword_length = 1 },
+--         { name = "nvim_lsp_signature_help" },
+--         { name = "luasnip",                keyword_length = 2 },
+--         { name = "buffer",                 keyword_length = 5 },
+--         { name = "path" },
+--     },
+--     window = {
+--         documentation = cmp.config.window.bordered(),
+--     },
+--     mapping = cmp.mapping.preset.insert({
+--         ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+--         ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+--         ["<C-y>"] = cmp.mapping.confirm({ select = true }),
+--         ["<C-Space>"] = cmp.mapping.complete(),
+--         ["<C-e>"] = cmp.mapping.abort(),
+--         ["<Tab>"] = nil,
+--         ["<S-Tab>"] = nil,
+--         -- scroll up and down the documentation window
+--         --   ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+--         --  ["<C-d>"] = cmp.mapping.scroll_docs(4),
+--     }),
+--     snippet = {
+--         expand = function(args)
+--             require("luasnip").lsp_expand(args.body)
+--         end,
+--     },
+-- })
+-- cmp.setup.cmdline("/", {
+--     mapping = cmp.mapping.preset.cmdline(),
+--     sources = {
+--         { name = "buffer" },
+--     },
+-- })
+-- cmp.setup.cmdline(":", {
+--     mapping = cmp.mapping.preset.cmdline(),
+--     sources = cmp.config.sources({
+--         { name = "path" },
+--     }, {
+--         {
+--             name = "cmdline",
+--             keyword_length = 3,
+--             option = {
+--                 ignore_cmds = { "Man", "!" },
+--             },
+--         },
+--     }),
+-- })
+--
+-- lsp_zero.extend_cmp()
+-- lsp_zero.preset({
+--     float_border = "rounded",
+--     call_servers = "local",
+--     configure_diagnostics = true,
+--     setup_servers_on_start = true,
+--     set_lsp_keymaps = {
+--         preserve_mappings = false,
+--         omit = {},
+--     },
+--     manage_nvim_cmp = {
+--         set_sources = "recommended",
+--         set_basic_mappings = true,
+--         set_extra_mappings = false,
+--         use_luasnip = true,
+--         set_format = true,
+--         documentation_window = true,
+--     },
+-- })
+--
+-- lsp_zero.format_on_save({
+--     format_opts = {
+--         async = false,
+--         timeout_ms = 10000,
+--     },
+--     servers = {
+--         ["svelte"] = { "svelte" },
+--         ["rust_analyzer"] = { "rust" },
+--         ["null-ls"] = { "javascript", "typescript", "lua" },
+--     },
+-- })
+--
+-- lsp_zero.on_attach(function(client, bufnr)
+--     local opts = { buffer = bufnr, remap = false }
+--     local bind = vim.keymap.set
+--     bind("n", "gD", vim.lsp.buf.declaration, opts)
+--     bind("n", "gd", vim.lsp.buf.definition, opts)
+--     bind("n", "K", vim.lsp.buf.hover, opts)
+--     bind("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
+--     bind("n", "<leader>vd", vim.diagnostic.open_float, opts)
+--     bind("n", "[d", vim.diagnostic.goto_next, opts)
+--     bind("n", "]d", vim.diagnostic.goto_prev, opts)
+--     bind("n", "<leader>vca", vim.lsp.buf.code_action, opts)
+--     bind("n", "<leader>vrr", vim.lsp.buf.references, opts)
+--     bind("n", "<leader>vrn", vim.lsp.buf.rename, opts)
+--     bind("i", "<C-h>", vim.lsp.buf.signature_help, opts)
+--     bind("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = true })
+--     lsp_zero.buffer_autoformat()
+-- end)
+--
+-- lsp_zero.set_preferences({
+--     sign_icons = {
+--         error = "E",
+--         warn = "W",
+--         hint = "H",
+--         info = "I",
+--     },
+-- })
+-- lsp_zero.configure("tailwindcss", {
+-- })
+-- lsp_zero.configure("tsserver", {
+--     settings = {
+--         completions = {
+--             documentation_window = true,
+--             completeFunctionCalls = true,
+--         },
+--     },
+-- })
+-- lsp_zero.configure("cssls", {
+-- })
+-- lsp_zero.configure("svelte", {
+--     settings = {
+--         svelte = {
+--             ["enable-ts-plugin"] = true,
+--         },
+--     },
+-- })
+--
+-- lsp_zero.setup()
